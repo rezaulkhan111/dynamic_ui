@@ -1,0 +1,734 @@
+{
+  "item_code": "BUCA-001",
+  "item_name": {
+    "en": "Ticket: Delhi > Bangalore",
+    "fr": "Billet : Delhi > Bangalore",
+    "ar": "تذكرة: دلهي > بنغالور",
+    "es": "Billete: Delhi > Bangalore",
+    "pt": "Bilhete: Delhi > Bangalore",
+    "cn": "车票：德里 > 班加罗尔"
+  },
+  "item_datas": {
+    "identification_client": {
+      "title_lang": {
+        "en": "What customer/invoice identification data would you like to collect?",
+        "fr": "Quelles données d'identification Client / Facture souhaitez-vous recueillir ?",
+        "ar": "ما هي بيانات تعريف العميل / الفاتورة التي ترغب في جمعها؟",
+        "es": "¿Qué datos de identificación del cliente / factura desea recopilar?",
+        "pt": "Quais dados de identificação do cliente / fatura deseja coletar?",
+        "cn": "您想收集哪些客户/发票识别数据？"
+      },
+      "fields": [
+        {
+          "key": "passenger_name",
+          "type": "string",
+          "label_lang": {
+            "en": "Passenger full name",
+            "fr": "Nom & prénom du passager",
+            "ar": "الاسم الكامل للراكب",
+            "es": "Nombre completo del pasajero",
+            "pt": "Nome completo do passageiro",
+            "cn": "乘客全名"
+          },
+          "data": "",
+          "required": true
+        },
+        {
+          "key": "date_of_birth",
+          "type": "date",
+          "label_lang": {
+            "en": "Date of birth",
+            "fr": "Date de naissance",
+            "ar": "تاريخ الميلاد",
+            "es": "Fecha de nacimiento",
+            "pt": "Data de nascimento",
+            "cn": "出生日期"
+          },
+          "data": "",
+          "required": true
+        },
+        {
+          "key": "id_document",
+          "type": "string",
+          "label_lang": {
+            "en": "ID document number",
+            "fr": "Numéro de pièce d'identité",
+            "ar": "رقم وثيقة الهوية",
+            "es": "Número de documento de identidad",
+            "pt": "Número do documento de identidade",
+            "cn": "身份证件号码"
+          },
+          "data": "",
+          "required": false
+        },
+        {
+          "key": "contact_phone",
+          "type": "string",
+          "label_lang": {
+            "en": "Passenger phone number",
+            "fr": "Numéro de téléphone du passager",
+            "ar": "رقم هاتف الراكب",
+            "es": "Número de teléfono del pasajero",
+            "pt": "Número de telefone do passageiro",
+            "cn": "乘客电话号码"
+          },
+          "data": "",
+          "required": true
+        }
+      ]
+    },
+    "item_for_sale": {
+      "title_lang": {
+        "en": "Intercity transport ticket",
+        "fr": "Titre de transport inter-urban",
+        "ar": "تذكرة النقل بين المدن",
+        "es": "Billete de transporte interurbano",
+        "pt": "Bilhete de transporte interurbano",
+        "cn": "城际交通票"
+      },
+      "fields": [
+        {
+          "key": "departure_city",
+          "type": "string",
+          "label_lang": {
+            "en": "Departure city",
+            "fr": "Ville de départ",
+            "ar": "مدينة المغادرة",
+            "es": "Ciudad de salida",
+            "pt": "Cidade de partida",
+            "cn": "出发城市"
+          },
+          "data": "Delhi",
+          "required": true
+        },
+        {
+          "key": "arrival_city",
+          "type": "string",
+          "label_lang": {
+            "en": "Arrival city",
+            "fr": "Ville d'arrivée",
+            "ar": "مدينة الوصول",
+            "es": "Ciudad de llegada",
+            "pt": "Cidade de chegada",
+            "cn": "到达城市"
+          },
+          "data": "Bangalore",
+          "required": true
+        },
+        {
+          "key": "line_number",
+          "type": "string",
+          "label_lang": {
+            "en": "Line number or bus name",
+            "fr": "Numéro de ligne ou nom du bus",
+            "ar": "رقم الخط أو اسم الحافلة",
+            "es": "Número de línea o nombre del autobús",
+            "pt": "Número da linha ou nome do ônibus",
+            "cn": "线路编号或巴士名称"
+          },
+          "data": "Bus 41",
+          "required": true
+        },
+        {
+          "key": "seat_class",
+          "type": "object",
+          "label_lang": {
+            "en": "What classes are available on the bus?",
+            "fr": "Quelles classes sont disponibles dans le bus ?",
+            "ar": "ما هي الدرجات المتوفرة في الحافلة؟",
+            "es": "¿Qué clases están disponibles en el autobús?",
+            "pt": "Quais classes estão disponíveis no ônibus?",
+            "cn": "巴士上提供哪些等级？"
+          },
+          "required": true,
+          "data": {
+            "available_classes": ["2nd", "1st", "VIP"],
+            "seats_by_class": {
+              "2nd": {
+                "label_lang": {
+                  "en": "2nd class",
+                  "fr": "2ème classe",
+                  "ar": "الدرجة الثانية",
+                  "es": "2ª clase",
+                  "pt": "2ª classe",
+                  "cn": "二等座"
+                },
+                "available_seats": 45
+              },
+              "1st": {
+                "label_lang": {
+                  "en": "1st class",
+                  "fr": "1ère classe",
+                  "ar": "الدرجة الأولى",
+                  "es": "1ª clase",
+                  "pt": "1ª classe",
+                  "cn": "一等座"
+                },
+                "available_seats": 12
+              },
+              "VIP": {
+                "label_lang": {
+                  "en": "VIP class",
+                  "fr": "VIP classe",
+                  "ar": "درجة كبار الشخصيات",
+                  "es": "Clase VIP",
+                  "pt": "Classe VIP",
+                  "cn": "VIP座"
+                },
+                "available_seats": 16
+              }
+            }
+          }
+        },
+        {
+          "key": "bus_type",
+          "type": "select",
+          "label_lang": {
+            "en": "What comforts are available on this bus (standard, air-conditioned, sleeper)",
+            "fr": "Quels conforts existent dans ce bus (standard, climatisé, couchette)",
+            "ar": "ما هي وسائل الراحة المتوفرة في هذه الحافلة (قياسي، مكيف، نوم)؟",
+            "es": "¿Qué comodidades están disponibles en este autobús (estándar, con aire acondicionado, litera)?",
+            "pt": "Quais comodidades estão disponíveis neste ônibus (padrão, ar-condicionado, leito)?",
+            "cn": "这辆巴士提供哪些舒适设施（标准、空调、卧铺）？"
+          },
+          "data": "standard,climatisé,couchette",
+          "required": true
+        },
+        {
+          "key": "via_stops",
+          "type": "boolean",
+          "label_lang": {
+            "en": "Intermediate stops (Yes, No)",
+            "fr": "Arrêts intermédiaires (Yes, No)",
+            "ar": "توقفات وسيطة (نعم، لا)",
+            "es": "Paradas intermedias (Sí, No)",
+            "pt": "Paradas intermediárias (Sim, Não)",
+            "cn": "中途停靠（是，否）"
+          },
+          "data": "No",
+          "required": true
+        }
+      ]
+    },
+    "dates_period": {
+      "title_lang": {
+        "en": "What are the dates & periods",
+        "fr": "Quelles sont les dates & Périodes",
+        "ar": "ما هي التواريخ والفترات؟",
+        "es": "¿Cuáles son las fechas y períodos?",
+        "pt": "Quais são as datas e períodos?",
+        "cn": "日期和时段是什么？"
+      },
+      "fields": [
+        {
+          "key": "schedule_type",
+          "type": "select",
+          "label_lang": {
+            "en": "Select schedule type",
+            "fr": "Sélectionnez le type de planning",
+            "ar": "اختر نوع الجدول الزمني",
+            "es": "Seleccione el tipo de horario",
+            "pt": "Selecione o tipo de cronograma",
+            "cn": "选择日程类型"
+          },
+          "data": "recurring",
+          "required": true,
+          "options": [
+            {
+              "value": "recurring",
+              "label_lang": {
+                "en": "Recurring (specific days of the week)",
+                "fr": "Récurrent (jours spécifiques de la semaine)",
+                "ar": "متكرر (أيام محددة من الأسبوع)",
+                "es": "Recurrente (días específicos de la semana)",
+                "pt": "Recorrente (dias específicos da semana)",
+                "cn": "重复（特定工作日）"
+              }
+            },
+            {
+              "value": "specific_dates",
+              "label_lang": {
+                "en": "Specific dates (calendar)",
+                "fr": "Dates spécifiques (calendrier)",
+                "ar": "تواريخ محددة (تقويم)",
+                "es": "Fechas específicas (calendario)",
+                "pt": "Datas específicas (calendário)",
+                "cn": "特定日期（日历）"
+              }
+            }
+          ]
+        },
+        {
+          "key": "departure_day",
+          "type": "select",
+          "label_lang": {
+            "en": "Departure day (recurring)",
+            "fr": "Jour de départ (récurrent)",
+            "ar": "يوم المغادرة (متكرر)",
+            "es": "Día de salida (recurrente)",
+            "pt": "Dia de partida (recorrente)",
+            "cn": "出发日（重复）"
+          },
+          "data": "M,T,W,T,F,S,S",
+          "required": false,
+          "condition": {
+            "depends_on": "schedule_type",
+            "value": "recurring"
+          }
+        },
+        {
+          "key": "departure_date",
+          "type": "calendar",
+          "label_lang": {
+            "en": "Departure date (specific)",
+            "fr": "Date de départ (spécifique)",
+            "ar": "تاريخ المغادرة (محدد)",
+            "es": "Fecha de salida (específica)",
+            "pt": "Data de partida (específica)",
+            "cn": "出发日期（特定）"
+          },
+          "data": "1,5,22,31",
+          "required": false,
+          "condition": {
+            "depends_on": "schedule_type",
+            "value": "specific_dates"
+          }
+        },
+        {
+          "key": "departure_time",
+          "type": "time",
+          "label_lang": {
+            "en": "Departure time",
+            "fr": "Heure de départ",
+            "ar": "وقت المغادرة",
+            "es": "Hora de salida",
+            "pt": "Horário de partida",
+            "cn": "出发时间"
+          },
+          "data": "14:30",
+          "required": true
+        },
+        {
+          "key": "arrival_info_type",
+          "type": "select",
+          "label_lang": {
+            "en": "How would you like to specify arrival?",
+            "fr": "Comment souhaitez-vous spécifier l'arrivée ?",
+            "ar": "كيف ترغب في تحديد الوصول؟",
+            "es": "¿Cómo desea especificar la llegada?",
+            "pt": "Como deseja especificar a chegada?",
+            "cn": "您想如何指定到达信息？"
+          },
+          "data": "arrival_time",
+          "required": true,
+          "options": [
+            {
+              "value": "arrival_time",
+              "label_lang": {
+                "en": "Arrival time",
+                "fr": "Heure d'arrivée",
+                "ar": "وقت الوصول",
+                "es": "Hora de llegada",
+                "pt": "Horário de chegada",
+                "cn": "到达时间"
+              }
+            },
+            {
+              "value": "travel_duration",
+              "label_lang": {
+                "en": "Travel duration",
+                "fr": "Durée du trajet",
+                "ar": "مدة الرحلة",
+                "es": "Duración del viaje",
+                "pt": "Duração da viagem",
+                "cn": "行程时长"
+              }
+            }
+          ]
+        },
+        {
+          "key": "arrival_time",
+          "type": "time",
+          "label_lang": {
+            "en": "Estimated arrival time",
+            "fr": "Heure d'arrivée estimée",
+            "ar": "وقت الوصول المقدر",
+            "es": "Hora de llegada estimada",
+            "pt": "Horário de chegada estimado",
+            "cn": "预计到达时间"
+          },
+          "data": "19:00",
+          "required": false,
+          "condition": {
+            "depends_on": "arrival_info_type",
+            "value": "arrival_time"
+          }
+        },
+        {
+          "key": "travel_duration",
+          "type": "string",
+          "label_lang": {
+            "en": "Estimated travel duration (e.g., 4h30, 2h15)",
+            "fr": "Durée estimée du trajet (ex: 4h30, 2h15)",
+            "ar": "مدة الرحلة المقدرة (مثال: 4h30، 2h15)",
+            "es": "Duración estimada del viaje (ej: 4h30, 2h15)",
+            "pt": "Duração estimada da viagem (ex: 4h30, 2h15)",
+            "cn": "预计行程时长（例如：4h30，2h15）"
+          },
+          "data": "4h-30",
+          "required": false,
+          "condition": {
+            "depends_on": "arrival_info_type",
+            "value": "travel_duration"
+          }
+        },
+        {
+          "key": "booking_expiry",
+          "type": "dd:hh:mm:ss",
+          "label_lang": {
+            "en": "Booking deadline before departure",
+            "fr": "Délai limite de réservation avant départ",
+            "ar": "الموعد النهائي للحجز قبل المغادرة",
+            "es": "Plazo de reserva antes de la salida",
+            "pt": "Prazo de reserva antes da partida",
+            "cn": "出发前预订截止时间"
+          },
+          "data": "07-00:00:00",
+          "required": true
+        }
+      ]
+    },
+    "tarification": {
+      "title_lang": {
+        "en": "Pricing",
+        "fr": "Tarification",
+        "ar": "التسعير",
+        "es": "Tarificación",
+        "pt": "Tarifação",
+        "cn": "定价"
+      },
+      "fields": [
+        {
+          "key": "adult_fare_2class",
+          "type": "decimal",
+          "label_lang": {
+            "en": "Adult fare (2nd class) - Base price",
+            "fr": "Tarif adulte (2ème classe) - Prix de base",
+            "ar": "تعريفة الكبار (الدرجة الثانية) - السعر الأساسي",
+            "es": "Tarifa adulto (2ª clase) - Precio base",
+            "pt": "Tarifa adulto (2ª classe) - Preço base",
+            "cn": "成人票价（二等座）- 基础价格"
+          },
+          "data": "70",
+          "required": true
+        },
+        {
+          "key": "extra_adult_1class",
+          "type": "decimal",
+          "label_lang": {
+            "en": "Adult supplement - 1st class",
+            "fr": "Supplément adulte - 1ère classe",
+            "ar": "رسوم إضافية للكبار - الدرجة الأولى",
+            "es": "Suplemento adulto - 1ª clase",
+            "pt": "Suplemento adulto - 1ª classe",
+            "cn": "成人附加费 - 一等座"
+          },
+          "data": "15",
+          "required": false,
+          "condition": {
+            "depends_on": "adult_fare_2class",
+            "operator": "not_empty"
+          }
+        },
+        {
+          "key": "extra_adult_vip",
+          "type": "decimal",
+          "label_lang": {
+            "en": "Adult supplement - VIP",
+            "fr": "Supplément adulte - VIP",
+            "ar": "رسوم إضافية للكبار - درجة كبار الشخصيات",
+            "es": "Suplemento adulto - VIP",
+            "pt": "Suplemento adulto - VIP",
+            "cn": "成人附加费 - VIP座"
+          },
+          "data": "30",
+          "required": false,
+          "condition": {
+            "depends_on": "adult_fare_2class",
+            "operator": "not_empty"
+          }
+        },
+        {
+          "key": "child_fare_2class",
+          "type": "decimal",
+          "label_lang": {
+            "en": "Child fare (2nd class) -12 years / reduced",
+            "fr": "Tarif enfant (2ème classe) -12 ans / réduit",
+            "ar": "تعريفة الطفل (الدرجة الثانية) - أقل من 12 سنة / مخفض",
+            "es": "Tarifa niño (2ª clase) -12 años / reducida",
+            "pt": "Tarifa criança (2ª classe) -12 anos / reduzida",
+            "cn": "儿童票价（二等座）- 12岁以下 / 优惠"
+          },
+          "data": "35",
+          "required": true
+        },
+        {
+          "key": "extra_child_1class",
+          "type": "decimal",
+          "label_lang": {
+            "en": "Child supplement - 1st class",
+            "fr": "Supplément enfant - 1ère classe",
+            "ar": "رسوم إضافية للطفل - الدرجة الأولى",
+            "es": "Suplemento niño - 1ª clase",
+            "pt": "Suplemento criança - 1ª classe",
+            "cn": "儿童附加费 - 一等座"
+          },
+          "data": "10",
+          "required": false,
+          "condition": {
+            "depends_on": "child_fare_2class",
+            "operator": "not_empty"
+          }
+        },
+        {
+          "key": "extra_child_vip",
+          "type": "decimal",
+          "label_lang": {
+            "en": "Child supplement - VIP",
+            "fr": "Supplément enfant - VIP",
+            "ar": "رسوم إضافية للطفل - درجة كبار الشخصيات",
+            "es": "Suplemento niño - VIP",
+            "pt": "Suplemento criança - VIP",
+            "cn": "儿童附加费 - VIP座"
+          },
+          "data": "20",
+          "required": false,
+          "condition": {
+            "depends_on": "child_fare_2class",
+            "operator": "not_empty"
+          }
+        },
+        {
+          "key": "discount",
+          "type": "decimal",
+          "label_lang": {
+            "en": "Discount",
+            "fr": "Réduction",
+            "ar": "خصم",
+            "es": "Descuento",
+            "pt": "Desconto",
+            "cn": "折扣"
+          },
+          "data": "12.50",
+          "required": false
+        },
+        {
+          "key": "tax_gov",
+          "type": "decimal",
+          "label_lang": {
+            "en": "Tax percentage (VAT, travel taxes...)",
+            "fr": "Pourcentage Taxes (TVA, taxes de trajet...)",
+            "ar": "نسبة الضريبة (ضريبة القيمة المضافة، ضرائب السفر...)",
+            "es": "Porcentaje de impuestos (IVA, impuestos de viaje...)",
+            "pt": "Porcentagem de impostos (IVA, impostos de viagem...)",
+            "cn": "税率百分比（增值税、旅行税等）"
+          },
+          "data": "20",
+          "required": false
+        },
+        {
+          "key": "extra_booking_fee",
+          "type": "decimal",
+          "label_lang": {
+            "en": "Online booking fee",
+            "fr": "Frais de réservation en ligne",
+            "ar": "رسوم الحجز عبر الإنترنت",
+            "es": "Tarifa de reserva en línea",
+            "pt": "Taxa de reserva online",
+            "cn": "在线预订费"
+          },
+          "data": "150",
+          "required": false
+        },
+        {
+          "key": "luggage_fee",
+          "type": "decimal",
+          "label_lang": {
+            "en": "Extra baggage fee (Max 23 kg)",
+            "fr": "Frais d'un bagage (Max 23 kg) supplémentaire",
+            "ar": "رسوم الأمتعة الإضافية (حد أقصى 23 كجم)",
+            "es": "Tarifa de equipaje adicional (Máx 23 kg)",
+            "pt": "Taxa de bagagem extra (Máx 23 kg)",
+            "cn": "额外行李费（最大23公斤）"
+          },
+          "data": "500",
+          "required": true
+        },
+        {
+          "key": "max_luggage",
+          "type": "decimal",
+          "label_lang": {
+            "en": "Maximum number of baggage (Max 23 kg) allowed per passenger",
+            "fr": "Nombre maximum de bagage (Max 23 kg) autorisé par passager",
+            "ar": "العدد الأقصى للأمتعة (حد أقصى 23 كجم) المسموح به لكل راكب",
+            "es": "Número máximo de equipaje (Máx 23 kg) permitido por pasajero",
+            "pt": "Número máximo de bagagem (Máx 23 kg) permitido por passageiro",
+            "cn": "每位乘客允许的最大行李数量（最大23公斤）"
+          },
+          "data": "2",
+          "required": true
+        }
+      ]
+    },
+    "configuration_rules": {
+      "title_lang": {
+        "en": "Conditions & Rules",
+        "fr": "Conditions & Règles",
+        "ar": "الشروط والقواعد",
+        "es": "Condiciones y Reglas",
+        "pt": "Condições e Regras",
+        "cn": "条件和规则"
+      },
+      "fields": [
+        {
+          "key": "cancellation_policy",
+          "type": "text",
+          "label_lang": {
+            "en": "Cancellation policy",
+            "fr": "Politique d'annulation",
+            "ar": "سياسة الإلغاء",
+            "es": "Política de cancelación",
+            "pt": "Política de cancelamento",
+            "cn": "取消政策"
+          },
+          "data": "string bla bla bla",
+          "required": true
+        },
+        {
+          "key": "refund_delay",
+          "type": "dd:hh:mm:ss",
+          "label_lang": {
+            "en": "Refund delay (hours/days)",
+            "fr": "Délai de remboursement (heure / jours)",
+            "ar": "مدة استرداد الأموال (ساعات / أيام)",
+            "es": "Plazo de reembolso (horas / días)",
+            "pt": "Prazo de reembolso (horas / dias)",
+            "cn": "退款时限（小时/天）"
+          },
+          "data": "00-02:00:00",
+          "required": false
+        },
+        {
+          "key": "max_luggage_kg",
+          "type": "decimal",
+          "label_lang": {
+            "en": "Allowed baggage weight (kg)",
+            "fr": "Poids de bagages autorisé (kg)",
+            "ar": "وزن الأمتعة المسموح به (كجم)",
+            "es": "Peso de equipaje permitido (kg)",
+            "pt": "Peso de bagagem permitido (kg)",
+            "cn": "允许的行李重量（公斤）"
+          },
+          "data": "23",
+          "required": true
+        },
+        {
+          "key": "checkin_time",
+          "type": "hh:mm:ss",
+          "label_lang": {
+            "en": "Boarding time limit before departure",
+            "fr": "Temps limite d'embarquement avant départ",
+            "ar": "الموعد النهائي للصعود قبل المغادرة",
+            "es": "Tiempo límite de embarque antes de la salida",
+            "pt": "Tempo limite de embarque antes da partida",
+            "cn": "出发前登机时限"
+          },
+          "data": "00:15:00",
+          "required": false
+        },
+        {
+          "key": "ticket_transferable",
+          "type": "boolean",
+          "label_lang": {
+            "en": "Is the ticket transferable?",
+            "fr": "Billet nominatif / transférable ?",
+            "ar": "هل التذكرة قابلة للتحويل؟",
+            "es": "¿El billete es transferible?",
+            "pt": "O bilhete é transferível?",
+            "cn": "车票可转让吗？"
+          },
+          "data": "1",
+          "required": true
+        },
+        {
+          "key": "seat_reservation_required",
+          "type": "boolean",
+          "label_lang": {
+            "en": "Is seat reservation required?",
+            "fr": "Réservation de siège obligatoire",
+            "ar": "هل حجز المقعد إلزامي؟",
+            "es": "¿Es obligatoria la reserva de asiento?",
+            "pt": "A reserva de assento é obrigatória?",
+            "cn": "需要预订座位吗？"
+          },
+          "data": "0",
+          "required": false
+        }
+      ]
+    },
+    "verification_method": {
+      "title_lang": {
+        "en": "Select one or more verification methods",
+        "fr": "Sélectionner une ou plusieurs méthodes de vérification",
+        "ar": "اختر طريقة أو أكثر للتحقق",
+        "es": "Seleccione uno o más métodos de verificación",
+        "pt": "Selecione um ou mais métodos de verificação",
+        "cn": "选择一种或多种验证方式"
+      },
+      "fields": [
+        {
+          "key": "qr_number",
+          "type": "boolean",
+          "label_lang": {
+            "en": "Verification by QR code scan (Yes/No)",
+            "fr": "Vérification par scan du qr-code (Yes / No)",
+            "ar": "التحقق عن طريق مسح رمز QR (نعم / لا)",
+            "es": "Verificación mediante escaneo de código QR (Sí/No)",
+            "pt": "Verificação por escaneamento de código QR (Sim/Não)",
+            "cn": "通过扫描二维码验证（是/否）"
+          },
+          "data": "No",
+          "required": true
+        },
+        {
+          "key": "reservation_number",
+          "type": "boolean",
+          "label_lang": {
+            "en": "Reservation number (Yes/No)",
+            "fr": "Numéro de réservation (Yes / No)",
+            "ar": "رقم الحجز (نعم / لا)",
+            "es": "Número de reserva (Sí/No)",
+            "pt": "Número de reserva (Sim/Não)",
+            "cn": "预订编号（是/否）"
+          },
+          "data": "0",
+          "required": false
+        },
+        {
+          "key": "passenger_fullname",
+          "type": "boolean",
+          "label_lang": {
+            "en": "Passenger full name (Yes/No)",
+            "fr": "Nom & prénom du passager (Yes / No)",
+            "ar": "الاسم الكامل للراكب (نعم / لا)",
+            "es": "Nombre completo del pasajero (Sí/No)",
+            "pt": "Nome completo do passageiro (Sim/Não)",
+            "cn": "乘客全名（是/否）"
+          },
+          "data": "1",
+          "required": false
+        }
+      ]
+    }
+  }
+}
