@@ -7,6 +7,7 @@ class FormScreen extends StatefulWidget {
 }
 
 class _FormScreenState extends State<FormScreen> {
+  final _formKey = GlobalKey<FormState>();
   Map<String, dynamic>? jsonData;
   Map<String, dynamic> formValues = {};
   final String lang = 'en';
@@ -91,24 +92,37 @@ class _FormScreenState extends State<FormScreen> {
           )
         ],
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 80),
-        itemCount: itemDatas.length,
-        itemBuilder: (context, index) {
-          String sectionKey = itemDatas.keys.elementAt(index);
-          return _buildSectionCard(itemDatas[sectionKey]);
-        },
+      body: Form(
+        key: _formKey,
+        child: ListView.builder(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 80),
+          itemCount: itemDatas.length,
+          itemBuilder: (context, index) {
+            String sectionKey = itemDatas.keys.elementAt(index);
+            return _buildSectionCard(itemDatas[sectionKey]);
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          print("SUBMITTING FORM: $formValues");
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              behavior: SnackBarBehavior.floating,
-              content: const Text("Form data saved successfully!"),
-              backgroundColor: colorScheme.primary,
-            ),
-          );
+          if (_formKey.currentState!.validate()) {
+            print("SUBMITTING FORM: $formValues");
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                behavior: SnackBarBehavior.floating,
+                content: const Text("Form data saved successfully!"),
+                backgroundColor: colorScheme.primary,
+              ),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                behavior: SnackBarBehavior.floating,
+                content: Text("Please fix the errors in the form"),
+                backgroundColor: Colors.redAccent,
+              ),
+            );
+          }
         },
         label: const Text("Save Changes"),
         icon: const Icon(Icons.check_circle),
@@ -173,10 +187,18 @@ class _FormScreenState extends State<FormScreen> {
     String label = field["label_lang"]?[lang] ?? key;
     String type = field["type"];
     dynamic value = formValues[key];
+    bool isRequired = field["required"] == true;
     final colorScheme = Theme.of(context).colorScheme;
     final icon = _getIconForField(key, type);
 
     Widget fieldWidget;
+
+    String? validator(String? val) {
+      if (isRequired && (val == null || val.isEmpty)) {
+        return "This field is required";
+      }
+      return null;
+    }
 
     switch (type) {
       case 'string':
@@ -190,27 +212,57 @@ class _FormScreenState extends State<FormScreen> {
           decoration: InputDecoration(
             labelText: label,
             prefixIcon: Icon(icon, size: 20),
-            hintText: field['required'] == true ? "Required" : null,
-            filled: true,
-            fillColor: colorScheme.surface,
+            hintText: isRequired ? "Required" : null,
           ),
           maxLines: type == 'text' ? 3 : 1,
           keyboardType: type == 'decimal'
               ? const TextInputType.numberWithOptions(decimal: true)
               : (key.contains('phone') ? TextInputType.phone : TextInputType.text),
-          onChanged: (val) => setState(() => formValues[key] = val),
+          onChanged: (val) {
+            formValues[key] = val;
+            // Trigger rebuild for conditional fields without full validation
+            setState(() {});
+          },
+          validator: validator,
         );
         break;
 
       case 'boolean':
         bool boolValue = value == true || value == "1" || value == 1 || value.toString().toLowerCase() == "yes";
-        fieldWidget = SwitchListTile(
-          title: Text(label, style: const TextStyle(fontSize: 14)),
-          secondary: Icon(icon, color: colorScheme.primary, size: 20),
-          value: boolValue,
-          activeColor: colorScheme.primary,
-          onChanged: (val) => setState(() => formValues[key] = val),
-          contentPadding: EdgeInsets.zero,
+        fieldWidget = FormField<bool>(
+          initialValue: boolValue,
+          validator: (val) {
+            if (isRequired && val != true) {
+              // This depends on whether "required" for boolean means "must be true"
+              // In many forms it means "must be checked". If it's just a toggle,
+              // maybe it's never "invalid". 
+              // For now, let's assume required means must be true if it's like a terms checkbox.
+              // But for most toggles, 'false' is a valid value.
+              // If the JSON means it must have A value, well, boolean always has a value.
+              return null; 
+            }
+            return null;
+          },
+          builder: (state) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SwitchListTile(
+                  title: Text(label, style: const TextStyle(fontSize: 14)),
+                  secondary: Icon(icon, color: colorScheme.primary, size: 20),
+                  value: state.value ?? false,
+                  activeColor: colorScheme.primary,
+                  onChanged: (val) {
+                    state.didChange(val);
+                    setState(() => formValues[key] = val);
+                  },
+                  contentPadding: EdgeInsets.zero,
+                ),
+                if (state.hasError)
+                  Text(state.errorText!, style: TextStyle(color: colorScheme.error, fontSize: 12)),
+              ],
+            );
+          },
         );
         break;
 
@@ -230,42 +282,57 @@ class _FormScreenState extends State<FormScreen> {
           decoration: InputDecoration(
             labelText: label,
             prefixIcon: Icon(icon, size: 20),
-            filled: true,
-            fillColor: colorScheme.surface,
           ),
           items: options.map((opt) {
             String optValue = opt['value'].toString();
             return DropdownMenuItem(value: optValue, child: Text(opt['label_lang'][lang] ?? optValue));
           }).toList(),
           onChanged: (val) => setState(() => formValues[key] = val),
+          validator: (val) => isRequired && (val == null || val.isEmpty) ? "Please select an option" : null,
         );
         break;
 
       case 'date':
       case 'calendar':
       case 'time':
-        fieldWidget = InkWell(
-          onTap: () async {
-            if (type == 'time') {
-              TimeOfDay? picked = await showTimePicker(context: context, initialTime: TimeOfDay.now());
-              if (picked != null) {
-                final localizations = MaterialLocalizations.of(context);
-                setState(() => formValues[key] = localizations.formatTimeOfDay(picked, alwaysUse24HourFormat: true));
-              }
-            } else {
-              DateTime? picked = await showDatePicker(context: context, initialDate: DateTime.now(), firstDate: DateTime(1900), lastDate: DateTime(2100));
-              if (picked != null) setState(() => formValues[key] = picked.toIso8601String().split('T')[0]);
-            }
+        fieldWidget = FormField<String>(
+          initialValue: value?.toString(),
+          validator: (val) => isRequired && (val == null || val.isEmpty) ? "Please select a ${type == 'time' ? 'time' : 'date'}" : null,
+          builder: (state) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                InkWell(
+                  onTap: () async {
+                    if (type == 'time') {
+                      TimeOfDay? picked = await showTimePicker(context: context, initialTime: TimeOfDay.now());
+                      if (picked != null) {
+                        final localizations = MaterialLocalizations.of(context);
+                        String formatted = localizations.formatTimeOfDay(picked, alwaysUse24HourFormat: true);
+                        state.didChange(formatted);
+                        setState(() => formValues[key] = formatted);
+                      }
+                    } else {
+                      DateTime? picked = await showDatePicker(context: context, initialDate: DateTime.now(), firstDate: DateTime(1900), lastDate: DateTime(2100));
+                      if (picked != null) {
+                        String formatted = picked.toIso8601String().split('T')[0];
+                        state.didChange(formatted);
+                        setState(() => formValues[key] = formatted);
+                      }
+                    }
+                  },
+                  child: InputDecorator(
+                    decoration: InputDecoration(
+                      labelText: label,
+                      prefixIcon: Icon(icon, size: 20),
+                      errorText: state.hasError ? state.errorText : null,
+                    ),
+                    child: Text(state.value ?? "Select ${type == 'time' ? 'time' : 'date'}"),
+                  ),
+                ),
+              ],
+            );
           },
-          child: InputDecorator(
-            decoration: InputDecoration(
-              labelText: label,
-              prefixIcon: Icon(icon, size: 20),
-              filled: true,
-              fillColor: colorScheme.surface,
-            ),
-            child: Text(value?.toString() ?? "Select ${type == 'time' ? 'time' : 'date'}"),
-          ),
         );
         break;
 
