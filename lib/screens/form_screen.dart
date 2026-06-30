@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../services/json_loader.dart';
 
 class FormScreen extends StatefulWidget {
@@ -43,7 +44,8 @@ class _FormScreenState extends State<FormScreen> {
     var dependsOn = condition['depends_on'];
     var dependsOnValue = formValues[dependsOn];
 
-    if (condition.containsKey('operator') && condition['operator'] == 'not_empty') {
+    if (condition.containsKey('operator') &&
+        condition['operator'] == 'not_empty') {
       return dependsOnValue != null && dependsOnValue.toString().isNotEmpty;
     }
     return dependsOnValue.toString() == condition['value'].toString();
@@ -52,11 +54,18 @@ class _FormScreenState extends State<FormScreen> {
   IconData _getIconForField(String key, String type) {
     if (key.contains('phone')) return Icons.phone;
     if (key.contains('name')) return Icons.person;
-    if (key.contains('date') || type == 'date' || type == 'calendar') return Icons.calendar_today;
+    if (key.contains('date') || type == 'date' || type == 'calendar')
+      return Icons.calendar_today;
     if (key.contains('time') || type == 'time') return Icons.access_time;
-    if (key.contains('city') || key.contains('stop')) return Icons.location_city;
-    if (key.contains('price') || key.contains('fare') || key.contains('fee') || type == 'decimal') return Icons.attach_money;
-    if (key.contains('luggage') || key.contains('baggage')) return Icons.luggage;
+    if (key.contains('city') || key.contains('stop'))
+      return Icons.location_city;
+    if (key.contains('price') ||
+        key.contains('fare') ||
+        key.contains('fee') ||
+        type == 'decimal')
+      return Icons.attach_money;
+    if (key.contains('luggage') || key.contains('baggage'))
+      return Icons.luggage;
     if (key.contains('bus')) return Icons.directions_bus;
     if (key.contains('seat')) return Icons.event_seat;
     if (key.contains('policy') || key.contains('rule')) return Icons.gavel;
@@ -80,7 +89,10 @@ class _FormScreenState extends State<FormScreen> {
     return Scaffold(
       backgroundColor: colorScheme.surfaceVariant.withOpacity(0.3),
       appBar: AppBar(
-        title: Text(appBarTitle, style: const TextStyle(fontWeight: FontWeight.bold)),
+        title: Text(
+          appBarTitle,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
         centerTitle: true,
         elevation: 0,
         backgroundColor: colorScheme.surface,
@@ -89,7 +101,7 @@ class _FormScreenState extends State<FormScreen> {
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () => loadData(),
-          )
+          ),
         ],
       ),
       body: Form(
@@ -152,11 +164,17 @@ class _FormScreenState extends State<FormScreen> {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: colorScheme.primaryContainer.withOpacity(0.2),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(20),
+              ),
             ),
             child: Row(
               children: [
-                Icon(Icons.label_important_outline, color: colorScheme.primary, size: 20),
+                Icon(
+                  Icons.label_important_outline,
+                  color: colorScheme.primary,
+                  size: 20,
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
@@ -174,7 +192,9 @@ class _FormScreenState extends State<FormScreen> {
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
-              children: visibleFields.map((field) => _buildField(field)).toList(),
+              children: visibleFields
+                  .map((field) => _buildField(field))
+                  .toList(),
             ),
           ),
         ],
@@ -197,6 +217,11 @@ class _FormScreenState extends State<FormScreen> {
       if (isRequired && (val == null || val.isEmpty)) {
         return "This field is required";
       }
+      if (key.contains('phone') && val != null && val.isNotEmpty) {
+        if (!RegExp(r'^[0-9]+$').hasMatch(val)) {
+          return "Please enter only numbers";
+        }
+      }
       return null;
     }
 
@@ -217,10 +242,14 @@ class _FormScreenState extends State<FormScreen> {
           maxLines: type == 'text' ? 3 : 1,
           keyboardType: type == 'decimal'
               ? const TextInputType.numberWithOptions(decimal: true)
-              : (key.contains('phone') ? TextInputType.phone : TextInputType.text),
+              : (key.contains('phone')
+                    ? TextInputType.phone
+                    : TextInputType.text),
+          inputFormatters: key.contains('phone') || type == 'decimal'
+              ? [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))]
+              : null,
           onChanged: (val) {
             formValues[key] = val;
-            // Trigger rebuild for conditional fields without full validation
             setState(() {});
           },
           validator: validator,
@@ -228,38 +257,84 @@ class _FormScreenState extends State<FormScreen> {
         break;
 
       case 'boolean':
-        bool boolValue = value == true || value == "1" || value == 1 || value.toString().toLowerCase() == "yes";
+        bool boolValue =
+            value == true ||
+            value == "1" ||
+            value == 1 ||
+            value.toString().toLowerCase() == "yes";
         fieldWidget = FormField<bool>(
           initialValue: boolValue,
-          validator: (val) {
-            if (isRequired && val != true) {
-              // This depends on whether "required" for boolean means "must be true"
-              // In many forms it means "must be checked". If it's just a toggle,
-              // maybe it's never "invalid". 
-              // For now, let's assume required means must be true if it's like a terms checkbox.
-              // But for most toggles, 'false' is a valid value.
-              // If the JSON means it must have A value, well, boolean always has a value.
-              return null; 
-            }
-            return null;
-          },
           builder: (state) {
+            bool isSelected = state.value ?? false;
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SwitchListTile(
-                  title: Text(label, style: const TextStyle(fontSize: 14)),
-                  secondary: Icon(icon, color: colorScheme.primary, size: 20),
-                  value: state.value ?? false,
-                  activeColor: colorScheme.primary,
-                  onChanged: (val) {
-                    state.didChange(val);
-                    setState(() => formValues[key] = val);
+                InkWell(
+                  onTap: () {
+                    state.didChange(!isSelected);
+                    setState(() => formValues[key] = !isSelected);
                   },
-                  contentPadding: EdgeInsets.zero,
+                  borderRadius: BorderRadius.circular(12),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? colorScheme.primary.withOpacity(0.05)
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isSelected
+                            ? colorScheme.primary.withOpacity(0.5)
+                            : colorScheme.outlineVariant.withOpacity(0.3),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          icon,
+                          color: isSelected
+                              ? colorScheme.primary
+                              : colorScheme.onSurfaceVariant,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            label,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: isSelected
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                              color: isSelected
+                                  ? colorScheme.primary
+                                  : colorScheme.onSurface,
+                            ),
+                          ),
+                        ),
+                        Switch(
+                          value: isSelected,
+                          onChanged: (val) {
+                            state.didChange(val);
+                            setState(() => formValues[key] = val);
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
                 if (state.hasError)
-                  Text(state.errorText!, style: TextStyle(color: colorScheme.error, fontSize: 12)),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8, left: 12),
+                    child: Text(
+                      state.errorText!,
+                      style: TextStyle(color: colorScheme.error, fontSize: 12),
+                    ),
+                  ),
               ],
             );
           },
@@ -271,24 +346,56 @@ class _FormScreenState extends State<FormScreen> {
         if (field.containsKey('options')) {
           options = (field['options'] as List).cast<Map<String, dynamic>>();
         } else if (field['data'] is String) {
-          options = (field['data'] as String).split(',').map((o) => {'value': o.trim(), 'label_lang': {'en': o.trim()}}).toList();
+          // Using a Set to ensure unique values and prevent crashes from duplicate items
+          var uniqueData = (field['data'] as String).split(',').map((e) => e.trim()).toSet().toList();
+          options = uniqueData
+              .map(
+                (o) => {
+                  'value': o,
+                  'label_lang': {'en': o},
+                },
+              )
+              .toList();
         }
 
         String? currentValue = value?.toString();
-        if (currentValue != null && !options.any((o) => o['value'].toString() == currentValue)) currentValue = null;
+        if (currentValue != null &&
+            !options.any((o) => o['value'].toString() == currentValue)) {
+          currentValue = null;
+        }
 
         fieldWidget = DropdownButtonFormField<String>(
           value: currentValue,
+          elevation: 4,
+          borderRadius: BorderRadius.circular(16),
+          isExpanded: true,
           decoration: InputDecoration(
             labelText: label,
             prefixIcon: Icon(icon, size: 20),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 8,
+            ),
           ),
           items: options.map((opt) {
             String optValue = opt['value'].toString();
-            return DropdownMenuItem(value: optValue, child: Text(opt['label_lang'][lang] ?? optValue));
+            return DropdownMenuItem(
+              value: optValue,
+              child: Text(
+                opt['label_lang'][lang] ?? optValue,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontSize: 14),
+              ),
+            );
           }).toList(),
-          onChanged: (val) => setState(() => formValues[key] = val),
-          validator: (val) => isRequired && (val == null || val.isEmpty) ? "Please select an option" : null,
+          onChanged: (val) {
+            setState(() {
+              formValues[key] = val;
+            });
+          },
+          validator: (val) => isRequired && (val == null || val.isEmpty)
+              ? "Required"
+              : null,
         );
         break;
 
@@ -297,7 +404,20 @@ class _FormScreenState extends State<FormScreen> {
       case 'time':
         fieldWidget = FormField<String>(
           initialValue: value?.toString(),
-          validator: (val) => isRequired && (val == null || val.isEmpty) ? "Please select a ${type == 'time' ? 'time' : 'date'}" : null,
+          validator: (val) {
+            if (isRequired && (val == null || val.isEmpty)) {
+              return "Please select a ${type == 'time' ? 'time' : 'date'}";
+            }
+            if (key.contains('birth') && val != null && val.isNotEmpty) {
+              try {
+                DateTime selectedDate = DateTime.parse(val);
+                if (selectedDate.isAfter(DateTime.now())) {
+                  return "Birth date cannot be in the future";
+                }
+              } catch (_) {}
+            }
+            return null;
+          },
           builder: (state) {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -305,17 +425,32 @@ class _FormScreenState extends State<FormScreen> {
                 InkWell(
                   onTap: () async {
                     if (type == 'time') {
-                      TimeOfDay? picked = await showTimePicker(context: context, initialTime: TimeOfDay.now());
+                      TimeOfDay? picked = await showTimePicker(
+                        context: context,
+                        initialTime: TimeOfDay.now(),
+                      );
                       if (picked != null) {
                         final localizations = MaterialLocalizations.of(context);
-                        String formatted = localizations.formatTimeOfDay(picked, alwaysUse24HourFormat: true);
+                        String formatted = localizations.formatTimeOfDay(
+                          picked,
+                          alwaysUse24HourFormat: true,
+                        );
                         state.didChange(formatted);
                         setState(() => formValues[key] = formatted);
                       }
                     } else {
-                      DateTime? picked = await showDatePicker(context: context, initialDate: DateTime.now(), firstDate: DateTime(1900), lastDate: DateTime(2100));
+                      DateTime? picked = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(1900),
+                        lastDate: key.contains('birth')
+                            ? DateTime.now()
+                            : DateTime(2100),
+                      );
                       if (picked != null) {
-                        String formatted = picked.toIso8601String().split('T')[0];
+                        String formatted = picked.toIso8601String().split(
+                          'T',
+                        )[0];
                         state.didChange(formatted);
                         setState(() => formValues[key] = formatted);
                       }
@@ -327,7 +462,10 @@ class _FormScreenState extends State<FormScreen> {
                       prefixIcon: Icon(icon, size: 20),
                       errorText: state.hasError ? state.errorText : null,
                     ),
-                    child: Text(state.value ?? "Select ${type == 'time' ? 'time' : 'date'}"),
+                    child: Text(
+                      state.value ??
+                          "Select ${type == 'time' ? 'time' : 'date'}",
+                    ),
                   ),
                 ),
               ],
@@ -337,33 +475,150 @@ class _FormScreenState extends State<FormScreen> {
         break;
 
       case 'object':
-        fieldWidget = Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: colorScheme.secondaryContainer.withOpacity(0.3),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: colorScheme.outlineVariant),
-          ),
-          child: Column(
+        // Specialized UI for seat_class configuration
+        if (key == 'seat_class' && value is Map) {
+          var availableClasses = List<String>.from(value['available_classes'] ?? []);
+          var seatsByClass = Map<String, dynamic>.from(value['seats_by_class'] ?? {});
+
+          fieldWidget = Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
-                  Icon(icon, size: 18, color: colorScheme.secondary),
+                  Icon(icon, size: 20, color: colorScheme.primary),
                   const SizedBox(width: 8),
-                  Text(label, style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.onSecondaryContainer)),
+                  Text(
+                    label,
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                  ),
                 ],
               ),
-              const SizedBox(height: 8),
-              Text("Complex Configuration Data", style: TextStyle(fontSize: 12, color: colorScheme.onSecondaryContainer.withOpacity(0.7))),
+              const SizedBox(height: 12),
+              ...seatsByClass.keys.map((classKey) {
+                var classData = seatsByClass[classKey];
+                String classLabel = classData['label_lang']?[lang] ?? classKey;
+                bool isEnabled = availableClasses.contains(classKey);
+
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: isEnabled
+                        ? colorScheme.secondaryContainer.withOpacity(0.1)
+                        : colorScheme.surface,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: isEnabled
+                          ? colorScheme.secondary.withOpacity(0.3)
+                          : colorScheme.outlineVariant.withOpacity(0.5),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Switch(
+                        value: isEnabled,
+                        onChanged: (val) {
+                          setState(() {
+                            if (val) {
+                              availableClasses.add(classKey);
+                            } else {
+                              availableClasses.remove(classKey);
+                            }
+                            formValues[key]['available_classes'] = availableClasses;
+                          });
+                        },
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              classLabel,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: isEnabled ? colorScheme.onSurface : colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                            Text(
+                              "Available Seats",
+                              style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        width: 80,
+                        child: TextFormField(
+                          initialValue: classData['available_seats'].toString(),
+                          enabled: isEnabled,
+                          keyboardType: TextInputType.number,
+                          textAlign: TextAlign.center,
+                          decoration: InputDecoration(
+                            isDense: true,
+                            contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                            filled: true,
+                            fillColor: isEnabled ? colorScheme.surface : Colors.transparent,
+                          ),
+                          onChanged: (val) {
+                            int? seats = int.tryParse(val);
+                            if (seats != null) {
+                              formValues[key]['seats_by_class'][classKey]['available_seats'] = seats;
+                            }
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
             ],
-          ),
-        );
+          );
+        } else {
+          // Fallback for other object types
+          fieldWidget = Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: colorScheme.secondaryContainer.withOpacity(0.3),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: colorScheme.outlineVariant),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(icon, size: 18, color: colorScheme.secondary),
+                    const SizedBox(width: 8),
+                    Text(
+                      label,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: colorScheme.onSecondaryContainer,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  "Configuration Data: ${value.toString()}",
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: colorScheme.onSecondaryContainer.withOpacity(0.7),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
         break;
 
       default:
-        fieldWidget = ListTile(title: Text(label), subtitle: Text("Type: $type"));
+        fieldWidget = ListTile(
+          title: Text(label),
+          subtitle: Text("Type: $type"),
+        );
     }
 
     return Padding(
