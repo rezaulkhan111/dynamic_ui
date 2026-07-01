@@ -11,7 +11,16 @@ class _FormScreenState extends State<FormScreen> {
   final _formKey = GlobalKey<FormState>();
   Map<String, dynamic>? jsonData;
   Map<String, dynamic> formValues = {};
-  final String lang = 'en';
+  String currentLang = 'en';
+
+  final Map<String, String> langNames = {
+    'en': 'English',
+    'fr': 'Français',
+    'ar': 'العربية',
+    'es': 'Español',
+    'pt': 'Português',
+    'cn': '中文',
+  };
 
   @override
   void initState() {
@@ -83,8 +92,14 @@ class _FormScreenState extends State<FormScreen> {
     }
 
     var itemDatas = jsonData!["item_datas"] as Map<String, dynamic>;
-    String appBarTitle = jsonData!["item_name"]?[lang] ?? "Dynamic Form";
+    String appBarTitle = jsonData!["item_name"]?[currentLang] ?? "Dynamic Form";
     final colorScheme = Theme.of(context).colorScheme;
+
+    // Extract available languages from JSON
+    List<String> availableLangs = [];
+    if (jsonData!["item_name"] is Map) {
+      availableLangs = (jsonData!["item_name"] as Map).keys.cast<String>().toList();
+    }
 
     return Scaffold(
       backgroundColor: colorScheme.surfaceVariant.withOpacity(0.3),
@@ -93,11 +108,41 @@ class _FormScreenState extends State<FormScreen> {
           appBarTitle,
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
-        centerTitle: true,
+        centerTitle: false,
         elevation: 0,
         backgroundColor: colorScheme.surface,
         surfaceTintColor: colorScheme.surface,
         actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.language),
+            tooltip: 'Change Language',
+            onSelected: (String lang) {
+              setState(() {
+                currentLang = lang;
+              });
+            },
+            itemBuilder: (BuildContext context) {
+              return availableLangs.map((String langCode) {
+                return PopupMenuItem<String>(
+                  value: langCode,
+                  child: Row(
+                    children: [
+                      Text(
+                        langCode.toUpperCase(),
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(langNames[langCode] ?? langCode),
+                      if (currentLang == langCode) ...[
+                        const Spacer(),
+                        Icon(Icons.check, color: colorScheme.primary, size: 16),
+                      ],
+                    ],
+                  ),
+                );
+              }).toList();
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () => loadData(),
@@ -143,7 +188,7 @@ class _FormScreenState extends State<FormScreen> {
   }
 
   Widget _buildSectionCard(Map<String, dynamic> section) {
-    var title = section["title_lang"]?[lang] ?? "Section";
+    var title = section["title_lang"]?[currentLang] ?? "Section";
     var fields = section["fields"] as List<dynamic>;
     var visibleFields = fields.where((f) => _isFieldVisible(f)).toList();
     if (visibleFields.isEmpty) return const SizedBox.shrink();
@@ -204,7 +249,7 @@ class _FormScreenState extends State<FormScreen> {
 
   Widget _buildField(Map<String, dynamic> field) {
     String key = field["key"];
-    String label = field["label_lang"]?[lang] ?? key;
+    String label = field["label_lang"]?[currentLang] ?? key;
     String type = field["type"];
     dynamic value = formValues[key];
     bool isRequired = field["required"] == true;
@@ -382,7 +427,7 @@ class _FormScreenState extends State<FormScreen> {
             return DropdownMenuItem(
               value: optValue,
               child: Text(
-                opt['label_lang'][lang] ?? optValue,
+                opt['label_lang'][currentLang] ?? optValue,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(fontSize: 14),
               ),
@@ -464,7 +509,14 @@ class _FormScreenState extends State<FormScreen> {
                     ),
                     child: Text(
                       state.value ??
-                          "Select ${type == 'time' ? 'time' : 'date'}",
+                          (key.contains('birth')
+                              ? "YYYY-MM-DD"
+                              : "Select ${type == 'time' ? 'time' : 'date'}"),
+                      style: TextStyle(
+                        color: state.value == null
+                            ? colorScheme.onSurfaceVariant.withOpacity(0.6)
+                            : colorScheme.onSurface,
+                      ),
                     ),
                   ),
                 ),
@@ -496,7 +548,7 @@ class _FormScreenState extends State<FormScreen> {
               const SizedBox(height: 12),
               ...seatsByClass.keys.map((classKey) {
                 var classData = seatsByClass[classKey];
-                String classLabel = classData['label_lang']?[lang] ?? classKey;
+                String classLabel = classData['label_lang']?[currentLang] ?? classKey;
                 bool isEnabled = availableClasses.contains(classKey);
 
                 return Container(
